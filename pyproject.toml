@@ -1,0 +1,41 @@
+[build-system]
+requires = ["flit_core >=3.2,<4"]
+build-backend = "flit_core.buildapi"
+
+[project]
+name = "el1-parse"
+version = "0.1.0"
+description = "Parse photo layout .el1 files"
+requires-python = ">=3.12"
+dependencies = [
+    "construct",
+]
+
+[dependency-groups]
+dev = [
+    "pydantic",
+    "pytest",
+    "pytest-check",
+    "ruamel.yaml",
+]
+
+[project.scripts]
+el1-parse = "el1_parse.__main__:main"
+
+[tool.ruff]
+target-version = "py312"
+
+[tool.ruff.lint]
+select = ["ALL"]
+ignore = [
+    "COM812",  # Trailing comma missing
+    "D203",  # One blank line required before class docstring
+    "D213",  # Multi-line docstring summary should start at the second line
+    "D400",  # First line should end with a period (duplicates D415)
+    "ISC001",  # Single line implicit string concatenation
+]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/*.py" = [
+    "S101",  # Use of assert detected
+]
