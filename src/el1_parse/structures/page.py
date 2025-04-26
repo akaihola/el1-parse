@@ -25,7 +25,7 @@ page = Struct(
     "unknown6" / Const(0, Int32ul),
     "page_type" / Const("RS_PAGE", PaddedString(0x8, "ascii")),
     Padding(0x194),  # Header padding
-    "layout_entries"
+    "pages"
     / Array(
         this.num_entries,
         Struct(

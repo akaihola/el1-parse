@@ -93,7 +93,7 @@ def test_parse_el1_file(expected_file: Path) -> None:
 
     # Check data for Page.dat
     pages_data = parsed_data.entries[3]
-    pages = pages_data.layout_entries
+    pages = pages_data.pages
     check.equal(pages_data.num_entries, len(pages))
     expected_page_numbers = list(range(1, pages_data.num_entries + 1))
     check.equal([page.page_num for page in pages], expected_page_numbers)
