@@ -90,14 +90,17 @@ def test_parse_el1_file(expected_file: Path) -> None:
     check.equal(len(parsed_data.entries[0]), sizes[0])  # ElpData.dat
     check.equal(len(parsed_data.entries[1]), sizes[1])  # CurrentBase.dat
     check.equal(len(parsed_data.entries[2]), sizes[2])  # Deflay.dat
-    page = parsed_data.entries[3]
-    layout_entries = page.layout_entries
-    check.equal(page.num_entries, len(page.layout_entries))
-    check.equal(
-        [entry.photo_id for entry in layout_entries],
-        list(range(1, page.num_entries + 1)),
-    )
-    check.equal([entry.unknown1 for entry in layout_entries], [1])
+
+    # Check data for Page.dat
+    pages_data = parsed_data.entries[3]
+    pages = pages_data.layout_entries
+    check.equal(pages_data.num_entries, len(pages))
+    expected_page_numbers = list(range(1, pages_data.num_entries + 1))
+    check.equal([page.page_num for page in pages], expected_page_numbers)
+    check.equal([page.page_num_ for page in pages], expected_page_numbers)
+    expected_frames_per_page = [len(page["frames"]) for page in expected_data["pages"]]
+    check.equal([page.num_frames for page in pages], expected_frames_per_page)
+
     check.equal(len(parsed_data.entries[4]), sizes[4])  # Object.dat
     check.equal(len(parsed_data.entries[5]), sizes[5])  # Photo.dat
     check.equal(len(parsed_data.entries[6]), sizes[6])  # Memo.dat

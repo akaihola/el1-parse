@@ -3,12 +3,13 @@
 from construct import (
     Array,
     Const,
+    Int16ul,
     Int32sl,
     Int32ul,
+    OneOf,
     PaddedString,
     Padding,
     Struct,
-    Tell,
     this,
 )
 
@@ -31,10 +32,11 @@ page = Struct(
             "page_num" / Int32ul,
             "page_num_" / Int32ul,
             "unknown2" / Const(-5, Int32sl),
-            "unknown3" / Const(0x402a0007, Int32ul),
-            "num_frames" / Const(2, Int32ul),  # assumption
-            "unknown5" / Const(0, Int32ul),
-            "unknown6" / Const(0x0000b2b6, Int32ul),
+            "unknown3" / OneOf(Int16ul, {5, 7, 12, 18}),
+            "unknown4" / Const(0x402A, Int16ul),
+            "num_frames" / Int32ul,
+            "unknown6" / Const(0, Int32ul),
+            "unknown7" / OneOf(Int32ul, {0x0000B2B6, 0x00003A8F}),
             Padding(0x3570 - 7 * 4),  # Additional metadata
         ),
     ),
