@@ -17,6 +17,7 @@ from construct import (
 
 from el1_parse.structures.entry_metadata import entry_metadata
 from el1_parse.structures.page import page
+from el1_parse.structures.photo_file import photo_file
 
 unparsed_dat_file = Bytes(lambda ctx: ctx._.entry_table[ctx._index].size)
 
@@ -45,7 +46,7 @@ def make_parser(entry_struct: Construct) -> Struct:
 el1 = make_parser(
     Switch(
         lambda ctx: ctx._.entry_table[ctx._index].name,
-        {"Page.dat": page},
+        {"Page.dat": page, "PhotoFile.dat": photo_file},
         default=unparsed_dat_file,
     )
 )

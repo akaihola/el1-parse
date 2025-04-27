@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from datetime import UTC, datetime
 from pathlib import Path
 
 import pytest
@@ -108,5 +109,53 @@ def test_parse_el1_file(expected_file: Path) -> None:
     check.equal(len(parsed_data.entries[8]), sizes[8])  # Calender.dat
     check.equal(len(parsed_data.entries[9]), sizes[9])  # CalenderBase.dat
     check.equal(len(parsed_data.entries[10]), sizes[10])  # PhotoList.dat
-    check.equal(len(parsed_data.entries[11]), sizes[11])  # PhotoFile.dat
+
+    # Check data for PhotoFile.dat
+    photo_file_data = parsed_data.entries[11]
+    expected_photo_filenames = {
+        frame["image"]
+        for page in expected_data["pages"]
+        for frame in page["frames"]
+        if "image" in frame
+    }
+    expected_num_photos = len(expected_photo_filenames)
+    check.equal(len(photo_file_data.photos), expected_num_photos)
+    check.equal(photo_file_data.num_photos, expected_num_photos)
+    for photo_index, photo in enumerate(photo_file_data.photos, start=1):
+        check.equal(photo.photo_id, photo_index)
+        check_is_cache_path(photo.cache_dir_path)
+        check_is_path(photo.origin_dir_path)
+        check_is_cache_path(photo.cache_dir_path2)
+        check.between(
+            photo.timestamp,
+            datetime(2025, 1, 1, tzinfo=UTC),
+            datetime(2030, 1, 1, tzinfo=UTC),
+        )
+        path = el1_file.with_suffix(".el1.Data") / photo.cache_filename
+        check.equal(photo.filesize, path.stat().st_size)
+    cache_filenames = {photo.cache_filename for photo in photo_file_data.photos}
+    origin_filenames = {photo.origin_filename for photo in photo_file_data.photos}
+    cache_filenames2 = {photo.cache_filename2 for photo in photo_file_data.photos}
+    check.equal(cache_filenames, expected_photo_filenames)
+    check.equal(origin_filenames, expected_photo_filenames)
+    check.equal(cache_filenames2, expected_photo_filenames)
+
     check.equal(len(parsed_data.entries[12]), sizes[12])  # ExpImg.dat
+
+
+@check.check_func
+def check_is_path(s: str) -> None:
+    """Check if the given string is a valid absolute Windows file or directory path."""
+    assert s[0].isascii()
+    assert s[0].isupper()
+    assert s[1:3] == ":\\"
+
+
+@check.check_func
+def check_is_cache_path(s: str) -> None:
+    """Check if the given string is a valid photo cache directory path."""
+    check_is_path(s)
+    assert s[-1] == "\\"
+    parts = s[3:-1].split("\\")
+    assert "Canon Easy-PhotoPrint EX" in parts
+    assert "Cache" in parts
