@@ -1,0 +1,14 @@
+---
+pages:
+  - layout: "001"
+    frames:
+      - center-x: 105.0
+        center-y: 81.75
+        width: 118.5
+        height: 89.0
+        image: photo1-4to3.jpg
+      - center-x: 105.0
+        center-y: 215.25
+        width: 118.5
+        height: 89.0
+        image: photo2-4to3.jpg
