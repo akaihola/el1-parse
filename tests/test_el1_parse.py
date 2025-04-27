@@ -21,7 +21,7 @@ def find_expected_files() -> list[Path]:
     samples_dir = Path(__file__).parent.parent / "samples"
     for root, _dirs, _files in samples_dir.walk():
         expected_files.extend(Path(root).glob("*.yaml"))
-    return expected_files
+    return [str(path) for path in expected_files]
 
 
 class ExpectedFrame(BaseModel):
@@ -47,8 +47,12 @@ SMALLEST_ENTRY_SIZE = 572
 
 
 @pytest.mark.parametrize("expected_file", find_expected_files())
-def test_parse_el1_file(expected_file: Path) -> None:
+def test_parse_el1_file(expected_file: str) -> None:
     """Test parsing of .el1 files against expected data."""
+    # Don't use Path objects as arguments so Pytest shows file names for failed tests.
+    # Convert string to Path only here.
+    expected_file = Path(expected_file)
+
     # Load the expected data from the .expected.yaml file
     yaml = YAML(typ="safe")
     with expected_file.open("r") as f:
