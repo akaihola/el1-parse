@@ -2,6 +2,7 @@
 
 from construct import (
     Array,
+    Check,
     Const,
     Int16ul,
     Int32sl,
@@ -19,7 +20,8 @@ page = Struct(
     "unknown2" / Const(0, Int32ul),
     "num_entries" / Int32ul,
     "num_pages" / Int32ul,
-    "unknown4" / Const(13676, Int32ul),
+    "mystery_pointer" / Const(13676, Int32ul),  # some kind of a pointer?
+    Check(lambda ctx: this.mystery_pointer < ctx._._.entry_table[ctx._index].size),  # noqa: SLF001
     "layout_name" / Const("Canon Easy-LayoutPrint", PaddedString(0x64, "ascii")),
     "unknown5" / Const(4, Int32ul),
     "unknown6" / Const(0, Int32ul),
@@ -33,7 +35,7 @@ page = Struct(
             "page_num_" / Int32ul,
             "unknown2" / Const(-5, Int32sl),
             "unknown3" / OneOf(Int16ul, {5, 7, 12, 18}),
-            "unknown4" / Const(0x402A, Int16ul),
+            "mystery_pointer" / Const(0x402A, Int16ul),
             "num_frames" / Int32ul,
             "unknown6" / Const(0, Int32ul),
             "unknown7" / OneOf(Int32ul, {0x0000B2B6, 0x00003A8F}),

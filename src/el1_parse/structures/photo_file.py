@@ -20,7 +20,8 @@ photo_file = Struct(
     "num_photos" / Int32ul,
     "num_photos_" / Int32ul,
     Check(this.num_photos == this.num_photos_),
-    "unknown4" / Const(3152, Int32ul),
+    "mystery_pointer" / Const(3152, Int32ul),  # some kind of a pointer?
+    Check(lambda ctx: this.mystery_pointer < ctx._._.entry_table[ctx._index].size),  # noqa: SLF001
     "layout_name" / Const("Canon Easy-LayoutPrint", PaddedString(0x64, "ascii")),
     "unknown5" / Const(3, Int32ul),
     "unknown6" / Const(0, Int32ul),
