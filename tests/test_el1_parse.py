@@ -107,7 +107,14 @@ def test_parse_el1_file(expected_file: str) -> None:
     check.equal([page.num_frames for page in pages], expected_frames_per_page)
 
     check.equal(len(parsed_data.entries[4]), sizes[4])  # Object.dat
-    check.equal(len(parsed_data.entries[5]), sizes[5])  # Photo.dat
+
+    # Check data for Photo.dat
+    photo_data = parsed_data.entries[5]
+    expected_frames = [
+        frame for page in expected_data["pages"] for frame in page["frames"]
+    ]
+    check.equal(len(photo_data.frames), len(expected_frames))
+
     check.equal(len(parsed_data.entries[6]), sizes[6])  # Memo.dat
     check.equal(len(parsed_data.entries[7]), sizes[7])  # Text.dat
     check.equal(len(parsed_data.entries[8]), sizes[8])  # Calender.dat
@@ -117,10 +124,7 @@ def test_parse_el1_file(expected_file: str) -> None:
     # Check data for PhotoFile.dat
     photo_file_data = parsed_data.entries[11]
     expected_photo_filenames = {
-        frame["image"]
-        for page in expected_data["pages"]
-        for frame in page["frames"]
-        if "image" in frame
+        frame["image"] for frame in expected_frames if "image" in frame
     }
     expected_num_photos = len(expected_photo_filenames)
     check.equal(len(photo_file_data.photos), expected_num_photos)
