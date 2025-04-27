@@ -22,10 +22,10 @@ page = Struct(
     "num_pages" / Int32ul,
     "mystery_pointer" / Const(13676, Int32ul),  # some kind of a pointer?
     Check(lambda ctx: this.mystery_pointer < ctx._._.entry_table[ctx._index].size),  # noqa: SLF001
-    "layout_name" / Const("Canon Easy-LayoutPrint", PaddedString(0x64, "ascii")),
+    "software" / Const("Canon Easy-LayoutPrint", PaddedString(0x64, "ascii")),
     "unknown5" / Const(4, Int32ul),
     "unknown6" / Const(0, Int32ul),
-    "page_type" / Const("RS_PAGE", PaddedString(0x8, "ascii")),
+    "data_array_type" / Const("RS_PAGE", PaddedString(0x8, "ascii")),
     Padding(0x194),  # Header padding
     "pages"
     / Array(

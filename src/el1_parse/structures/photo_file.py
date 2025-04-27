@@ -22,10 +22,10 @@ photo_file = Struct(
     Check(this.num_photos == this.num_photos_),
     "mystery_pointer" / Const(3152, Int32ul),  # some kind of a pointer?
     Check(lambda ctx: this.mystery_pointer < ctx._._.entry_table[ctx._index].size),  # noqa: SLF001
-    "layout_name" / Const("Canon Easy-LayoutPrint", PaddedString(0x64, "ascii")),
+    "software" / Const("Canon Easy-LayoutPrint", PaddedString(0x64, "ascii")),
     "unknown5" / Const(3, Int32ul),
     "unknown6" / Const(0, Int32ul),
-    "page_type" / Const("ADD_PHOTO", PaddedString(0x9, "ascii")),
+    "data_array_type" / Const("ADD_PHOTO", PaddedString(0x9, "ascii")),
     Padding(0x193),  # Padding until 0x023c
     "photos"
     / Array(
