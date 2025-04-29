@@ -10,7 +10,6 @@ from construct import (
     OneOf,
     PaddedString,
     Padding,
-    Probe,
     Struct,
     this,
 )
@@ -44,10 +43,14 @@ photo = Struct(
             Const([1, 0, 1, 4, 2, 0x000200DA, 0x26], Array(7, Int32ul)),
             Const([0] * 0x1E, Array(0x1E, Int32ul)),
             Const(0x20C0, Int32ul),
-            Const([0, 0], Array(2, Int32ul)),
+            Const(0, Int32ul),
+            OneOf(Int32ul, {0, 1}),  # 0 = uncropped, 1 = cropped
             "width_px" / Int32ul,
             "height_px" / Int32ul,
-            Const([0, 0, 1, 0x70001000, 0, 0x70001000, 0], Array(7, Int32ul)),
+            "crop_left" / OneOf(Int32ul, {0, 4}),  # 0 = uncropped, 4 = cropped),
+            "crop_top" / OneOf(Int32ul, {0, 41, 46}),  # 0 = uncropped, 41/46 = cropped
+            OneOf(Int32ul, {0, 1}),  # 1 = uncropped, 0 = cropped
+            Const([0x70001000, 0, 0x70001000, 0], Array(4, Int32ul)),
             Const("frame000_preview.bmp", PaddedString(0x208, "utf16")),
             Const(0xA78 * b"\0", Bytes(0xA78)),
             Const(3, Int32ul),
