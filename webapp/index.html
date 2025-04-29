@@ -1,1 +1,42 @@
-Placeholder for web app for easily testing out the parser.
+<!DOCTYPE html>
+<html>
+<head>
+    <script src="https://cdn.jsdelivr.net/pyodide/v0.27.5/full/pyodide.js"></script>
+</head>
+<body>
+    <input type="file" id="file-upload" accept=".el1">
+    <div id="output"></div>
+
+    <script type="text/javascript">
+        async function main() {
+            let pyodide = await loadPyodide();
+            await pyodide.loadPackage("micropip");
+            const micropip = pyodide.pyimport("micropip");
+            await micropip.install('http:dist/el1_parse-0.1.0-py3-none-any.whl');
+            await pyodide.runPythonAsync(`
+                import traceback
+                from js import document, Uint8Array
+                from pyodide.ffi.wrappers import add_event_listener
+
+                from el1_parse.structures.el1 import el1
+
+                async def handle_file_upload(event):
+                    file = event.target.files.item(0)
+                    file_bytes = await file.arrayBuffer()
+                    data = Uint8Array.new(file_bytes).to_bytes()
+
+                    try:
+                        result = el1.parse(data)
+                    except Exception as e:
+                        result = traceback.format_exc()
+
+                    output = document.getElementById("output")
+                    output.innerHTML = f"<pre>{result}</pre>"
+
+                add_event_listener(document.getElementById("file-upload"), "change", handle_file_upload)
+            `);
+        }
+        main();
+    </script>
+</body>
+</html>
