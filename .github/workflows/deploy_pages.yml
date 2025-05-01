@@ -6,6 +6,7 @@ on:
     workflows: ["Build Python Wheel"]
     types:
       - completed
+  workflow_dispatch:
 
 permissions:
   contents: read
