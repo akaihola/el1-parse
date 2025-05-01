@@ -1,0 +1,44 @@
+name: Test Artifact Download
+
+on:
+  # Trigger this workflow when the 'Build Python Wheel' workflow completes successfully
+  workflow_run:
+    workflows: ["Build Python Wheel"]
+    types:
+      - completed
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read # Required to download artifacts from workflow_run
+
+jobs:
+  test-download:
+    # Only run if the triggering workflow succeeded
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Download wheel artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: python-wheel # Must match the upload name in build_wheel.yml
+          run-id: ${{ github.event.workflow_run.id }}
+          path: ./temp-wheel-artifact # Download to a temporary directory
+
+      - name: List downloaded artifacts
+        run: |
+          echo "Artifacts downloaded to ./temp-wheel-artifact:"
+          ls -la ./temp-wheel-artifact
+          echo "Wheel files found:"
+          find ./temp-wheel-artifact -name "*.whl" | wc -l
+
+      - name: Print artifact details
+        run: |
+          echo "Workflow run ID: ${{ github.event.workflow_run.id }}"
+          echo "Workflow run event: ${{ github.event.workflow_run.event }}"
+          echo "Workflow name: ${{ github.event.workflow_run.name }}"
+          echo "Workflow conclusion: ${{ github.event.workflow_run.conclusion }}"
+          echo "Head branch: ${{ github.event.workflow_run.head_branch }}"
