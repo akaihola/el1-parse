@@ -1,7 +1,6 @@
 name: Deploy to GitHub Pages
 
 on:
-  # Trigger this workflow when the 'Build Python Wheel' workflow completes successfully
   workflow_run:
     workflows: ["Build Python Wheel"]
     types:
@@ -12,7 +11,7 @@ permissions:
   contents: read
   pages: write
   id-token: write
-  actions: read # Required to download artifacts from workflow_run
+  actions: read
 
 concurrency:
   group: "pages"
@@ -20,7 +19,6 @@ concurrency:
 
 jobs:
   deploy:
-    # Only run if the triggering workflow succeeded
     if: ${{ github.event.workflow_run.conclusion == 'success' }}
     environment:
       name: github-pages
@@ -37,9 +35,9 @@ jobs:
         id: download-artifact
         uses: actions/download-artifact@v4
         with:
-          name: python-wheel # Must match the upload name in build_wheel.yml
+          name: python-wheel
           run-id: ${{ github.event.workflow_run.id }}
-          path: ./temp-wheel-artifact # Download to a temporary directory
+          path: ./temp-wheel-artifact
           github-token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Prepare deployment artifact structure
@@ -61,9 +59,8 @@ jobs:
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: '_site' # Upload the prepared directory
+          path: "_site"
 
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
-        # No 'with' section needed, deployment action reads from the uploaded artifact
