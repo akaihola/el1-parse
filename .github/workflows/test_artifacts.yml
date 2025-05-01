@@ -21,19 +21,45 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      - name: Set up GitHub CLI
+        run: |
+          echo "Setting up GitHub CLI authentication..."
+          echo ${{ secrets.GITHUB_TOKEN }} | gh auth login --with-token
+
+      - name: Diagnostic information before download
+        run: |
+          echo "Current job environment:"
+          echo "Workflow run ID: ${{ github.event.workflow_run.id }}"
+          echo "Repository: ${{ github.repository }}"
+          echo "Actor: ${{ github.actor }}"
+          echo "GitHub token permissions check:"
+          echo "Has read:packages? ${{ contains(github.token, 'read:packages') }}"
+          echo "Has actions:read? ${{ contains(github.token, 'actions:read') }}"
+
+          # List all available artifacts from the build workflow to verify visibility
+          echo "Available artifacts from workflow run:"
+          gh api repos/${{ github.repository }}/actions/runs/${{ github.event.workflow_run.id }}/artifacts \
+            --jq '.artifacts[] | {name: .name, id: .id, size_in_bytes: .size_in_bytes, expired: .expired}' || echo "Failed to list artifacts"
+
+          # Check if 'python-wheel' specifically exists
+          echo "Checking for python-wheel artifact specifically:"
+          gh api repos/${{ github.repository }}/actions/runs/${{ github.event.workflow_run.id }}/artifacts \
+            --jq '.artifacts[] | select(.name=="python-wheel") | {name: .name, id: .id, size_in_bytes: .size_in_bytes, expired: .expired}' || echo "Failed to check for python-wheel"
+
       - name: Download wheel artifact
         uses: actions/download-artifact@v4
         with:
           name: python-wheel # Must match the upload name in build_wheel.yml
           run-id: ${{ github.event.workflow_run.id }}
           path: ./temp-wheel-artifact # Download to a temporary directory
+          github-token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: List downloaded artifacts
         run: |
           echo "Artifacts downloaded to ./temp-wheel-artifact:"
-          ls -la ./temp-wheel-artifact
+          ls -la ./temp-wheel-artifact || echo "Directory does not exist or is empty"
           echo "Wheel files found:"
-          find ./temp-wheel-artifact -name "*.whl" | wc -l
+          find ./temp-wheel-artifact -name "*.whl" | wc -l || echo "Failed to find wheel files"
 
       - name: Print artifact details
         run: |
@@ -42,3 +68,4 @@ jobs:
           echo "Workflow name: ${{ github.event.workflow_run.name }}"
           echo "Workflow conclusion: ${{ github.event.workflow_run.conclusion }}"
           echo "Head branch: ${{ github.event.workflow_run.head_branch }}"
+          echo "Repository used for download: ${{ github.repository }}"
