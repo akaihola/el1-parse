@@ -34,11 +34,13 @@ jobs:
         uses: actions/configure-pages@v5
 
       - name: Download wheel artifact
+        id: download-artifact
         uses: actions/download-artifact@v4
         with:
           name: python-wheel # Must match the upload name in build_wheel.yml
           run-id: ${{ github.event.workflow_run.id }}
           path: ./temp-wheel-artifact # Download to a temporary directory
+          github-token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Prepare deployment artifact structure
         run: |
