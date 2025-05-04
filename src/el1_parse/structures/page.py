@@ -37,7 +37,8 @@ page = Struct(
                 "page_num" / Int32ul,
                 "page_num_" / Int32ul,
                 "unknown2" / OneOf(Int32sl, {-5, 0}),
-                "unknown3" / OneOf(Int16ul, {0, 1, 5, 7, 12, 18, 42}),
+                "unknown3"
+                / OneOf(Int16ul, {0, 1, 5, 7, 12, 18, 29, 30, 35, 42, 43, 53, 58}),
                 "mystery_pointer" / OneOf(Int16ul, {0, 0x402A, 16424, 16425}),
                 "num_frames" / Int32ul,
                 "frames"
@@ -62,7 +63,10 @@ page = Struct(
                         "unknown8"
                         / OneOf(
                             Int32sl,
-                            set(range(2, 15)) | set(range(17, 46, 2)) | {-1, 20},
+                            set(range(2, 16))
+                            | set(range(17, 46, 2))
+                            | set(range(47, 53))
+                            | {-1, 20, 38, 40, 58, 60, 62},
                         ),
                     ),
                 ),
