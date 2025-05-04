@@ -143,7 +143,7 @@ def test_parse_el1_file(expected_file: str) -> None:
     expected_frames = [
         frame for page in expected_data["pages"] for frame in page["frames"]
     ]
-    check.equal(len(photo_data.frames), len(expected_frames))
+    check.equal(len(photo_data.photos), len(expected_frames))
 
     check.equal(len(parsed_data.entries[6]), sizes[6])  # Memo.dat
     check.equal(len(parsed_data.entries[7]), sizes[7])  # Text.dat

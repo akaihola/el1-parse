@@ -18,8 +18,8 @@ photo_file = Struct(
     "unknown1" / Const(3, Int32ul),
     "unknown2" / Const(0, Int32ul),
     "num_photos" / Int32ul,
-    "num_photos_" / Int32ul,
-    Check(this.num_photos == this.num_photos_),
+    "unknown3" / Int32ul,
+    Check(this.num_photos <= this.unknown3),
     "mystery_pointer" / Const(3152, Int32ul),  # some kind of a pointer?
     Check(lambda ctx: this.mystery_pointer < ctx._._.entry_table[ctx._index].size),  # noqa: SLF001
     "software" / Const("Canon Easy-LayoutPrint", PaddedString(0x64, "ascii")),
@@ -32,7 +32,6 @@ photo_file = Struct(
         this.num_photos,
         Struct(
             "photo_id" / Int32ul,
-            Check(this.photo_id == this._index + 1),  # noqa: SLF001
             "num_extra_paths" / Const(2, Int32ul),
             "cache_dir_path" / PaddedString(0x208, "utf16"),
             "cache_filename" / PaddedString(0x208, "utf16"),

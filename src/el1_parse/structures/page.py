@@ -37,14 +37,14 @@ page = Struct(
                 "page_num" / Int32ul,
                 "page_num_" / Int32ul,
                 "unknown2" / OneOf(Int32sl, {-5, 0}),
-                "unknown3" / OneOf(Int16ul, {0, 5, 7, 12, 18}),
-                "mystery_pointer" / OneOf(Int16ul, {0, 0x402A}),
+                "unknown3" / OneOf(Int16ul, {0, 1, 5, 7, 12, 18, 42}),
+                "mystery_pointer" / OneOf(Int16ul, {0, 0x402A, 16424, 16425}),
                 "num_frames" / Int32ul,
                 "frames"
                 / Array(
                     this.num_frames,
                     Struct(
-                        Const(0, Int32ul),
+                        "unknown1" / OneOf(Int32ul, {0, 2}),
                         # X coordinate of the left of the frame, assuming an uncropped
                         # image center aligned in the frame:
                         "left" / Int32ul,
@@ -53,9 +53,17 @@ page = Struct(
                         "top" / Int32ul,
                         "width" / Int32ul,
                         "height" / Int32ul,
-                        Const([0] * 0x10, Array(0x10, Int32ul)),
-                        OneOf(Int32ul, {0, 1}),
-                        OneOf(Int32ul, {2, 4, 6, 8, 10, 12, 14, 20}),
+                        "unknown2" / Const([0] * 6, Array(6, Int32ul)),
+                        "unknown3" / OneOf(Int32ul, {0, 540}),
+                        "unknown4" / OneOf(Int32ul, {0, 3}),
+                        "unknown5" / OneOf(Int32ul, {0, 2}),
+                        "unknown6" / Const([0] * 7, Array(7, Int32ul)),
+                        "unknown7" / OneOf(Int32ul, {0, 1}),
+                        "unknown8"
+                        / OneOf(
+                            Int32sl,
+                            set(range(2, 15)) | set(range(17, 46, 2)) | {-1, 20},
+                        ),
                     ),
                 ),
             ),
