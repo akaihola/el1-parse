@@ -16,11 +16,14 @@ from construct import (
 )
 
 from el1_parse.structures.entry_metadata import entry_metadata
+from el1_parse.structures.hexdump_norepeat import HexDumpRepeatSuppress
 from el1_parse.structures.page import page
 from el1_parse.structures.photo import photo
 from el1_parse.structures.photo_file import photo_file
 
-unparsed_dat_file = Bytes(lambda ctx: ctx._.entry_table[ctx._index].size)
+unparsed_dat_file = HexDumpRepeatSuppress(
+    Bytes(lambda ctx: ctx._.entry_table[ctx._index].size)  # noqa: SLF001
+)
 
 
 def make_parser(entry_struct: Construct) -> Struct:
