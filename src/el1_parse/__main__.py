@@ -37,5 +37,5 @@ def extract_raw_dat_files(input_file: Path) -> None:
     for entry_index, entry_data in enumerate(data.entries):
         entry_name = data.entry_table[entry_index].name
         output_path = directory / entry_name
-        output_path.write_bytes(entry_data)
+        output_path.write_bytes(entry_data.data)
         logger.info("Extracted %s to %s", entry_name, output_path)

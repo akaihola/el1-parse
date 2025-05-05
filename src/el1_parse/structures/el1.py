@@ -21,9 +21,13 @@ from el1_parse.structures.page import page
 from el1_parse.structures.photo import photo
 from el1_parse.structures.photo_file import photo_file
 
-unparsed_dat_file = HexDumpRepeatSuppress(
-    Bytes(lambda ctx: ctx._.entry_table[ctx._index].size)  # noqa: SLF001
-)
+
+def hexdump_unparsed(width: int = 16) -> Construct:
+    """Create a construct for a user-defined format (UDF)."""
+    return HexDumpRepeatSuppress(
+        Bytes(lambda ctx: ctx._.entry_table[ctx._index].size),  # noqa: SLF001
+        width=width,
+    )
 
 
 def make_parser(entry_struct: Construct) -> Struct:
@@ -50,8 +54,21 @@ def make_parser(entry_struct: Construct) -> Struct:
 el1 = make_parser(
     Switch(
         lambda ctx: ctx._.entry_table[ctx._index].name,  # noqa: SLF001
-        {"Page.dat": page, "Photo.dat": photo, "PhotoFile.dat": photo_file},
-        default=unparsed_dat_file,
+        {
+            "ElpData.dat": hexdump_unparsed(32),
+            "CurrentBase.dat": hexdump_unparsed(32),
+            "Deflay.dat": hexdump_unparsed(84),
+            "Page.dat": page,
+            "Object.dat": hexdump_unparsed(88),
+            "Photo.dat": photo,
+            "Memo.dat": hexdump_unparsed(293),
+            "Text.dat": hexdump_unparsed(32),
+            "Calender.dat": hexdump_unparsed(32),
+            "CalenderBase.dat": hexdump_unparsed(32),
+            "PhotoList.dat": hexdump_unparsed(32),
+            "PhotoFile.dat": photo_file,
+            "ExpImg.dat": hexdump_unparsed(32),
+        },
     )
 )
-el1_dat_extract = make_parser(unparsed_dat_file)
+el1_dat_extract = make_parser(hexdump_unparsed(32))

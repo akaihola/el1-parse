@@ -9,21 +9,31 @@ ASCII_PRINTABLE_MIN = 0x20  # Space
 ASCII_PRINTABLE_MAX = 0x7E  # Tilde (~)
 
 
-class HexDumpRepeatSuppressedBytes(bytes):
+class HexDumpRepeatSuppressedBytes:
     """Bytes whose string representation suppresses repeated hexdump lines."""
+
+    def __init__(self, obj: bytes, width: int = 16) -> None:
+        """Initialize the HexDumpRepeatSuppressedBytes object."""
+        self.data = obj
+        self._width = width
 
     def __str__(self) -> str:
         """Return a string representation of the bytes object."""
-        return hexdump_repeat_suppressed(self)
+        return hexdump_repeat_suppressed(self.data, width=self._width)
 
 
-class HexDumpRepeatSuppressedDict(dict):
-    """Bytes whose string representation suppresses repeated hexdump lines."""
+class HexDumpRepeatSuppressedDict:
+    """Dict whose string representation suppresses repeated hexdump lines."""
+
+    def __init__(self, obj: bytes, width: int = 16) -> None:
+        """Initialize the HexDumpRepeatSuppressedDict with a dict and width."""
+        self.data = obj
+        self._width = width
 
     def __str__(self) -> str:
         """Return a string representation of the data in the dictionary."""
-        data = self.get("data", b"")
-        return hexdump_repeat_suppressed(data)
+        data = self.data.get("data", b"")
+        return hexdump_repeat_suppressed(data, width=self._width)
 
 
 def hexdump_repeat_suppressed(data: bytes, width: int = 16, group: int = 2) -> str:
@@ -62,6 +72,11 @@ def hexdump_repeat_suppressed(data: bytes, width: int = 16, group: int = 2) -> s
 class HexDumpRepeatSuppress(Adapter):
     """Like construct's HexDump adapter, but collapses repeated rows to ``*``."""
 
+    def __init__(self, subcon: Any, width: int = 16) -> None:  # noqa: ANN401
+        """Initialize the HexDumpRepeatSuppress adapter."""
+        super().__init__(subcon)
+        self._width = width
+
     def _decode(
         self,
         obj: Any,  # noqa: ANN401
@@ -69,9 +84,9 @@ class HexDumpRepeatSuppress(Adapter):
         path: str,  # noqa: ARG002
     ) -> HexDumpRepeatSuppressedBytes | HexDumpRepeatSuppressedDict:
         if isinstance(obj, bytes):
-            return HexDumpRepeatSuppressedBytes(obj)
+            return HexDumpRepeatSuppressedBytes(obj, width=self._width)
         if isinstance(obj, dict):
-            return HexDumpRepeatSuppressedDict(obj)
+            return HexDumpRepeatSuppressedDict(obj, width=self._width)
         return obj
 
     def _encode(self, obj: Any, context: Container, path: str) -> Any:  # noqa: ANN401, ARG002
