@@ -16,7 +16,7 @@ def test_parse():
 
     # Print the parsed datetime (using the original format for comparison)
     # Note: The parsed_dt will be timezone-aware UTC by default due to the adapter code
-    # We'll format it without timezone info for comparison with the original script output
+    # We'll format it without timezone info for comparison with original script output
     assert parsed_dt == datetime(2025, 4, 26, 17, 52, 30, 738557, tzinfo=UTC)
 
 

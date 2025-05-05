@@ -36,7 +36,7 @@ def make_parser(entry_struct: Construct) -> Struct:
             this.num_entries,
             FocusedSeq(
                 "data",
-                Seek(lambda ctx: ctx._.entry_table[ctx._index].offset),
+                Seek(lambda ctx: ctx._.entry_table[ctx._index].offset),  # noqa: SLF001
                 "data" / entry_struct,
             ),
         ),
@@ -46,7 +46,7 @@ def make_parser(entry_struct: Construct) -> Struct:
 
 el1 = make_parser(
     Switch(
-        lambda ctx: ctx._.entry_table[ctx._index].name,
+        lambda ctx: ctx._.entry_table[ctx._index].name,  # noqa: SLF001
         {"Page.dat": page, "Photo.dat": photo, "PhotoFile.dat": photo_file},
         default=unparsed_dat_file,
     )

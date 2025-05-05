@@ -1,6 +1,6 @@
 """Data structure for entry metadata in the ``.el1`` file."""
 
-from construct import Int32ul, PaddedString, Struct, this
+from construct import Int32ul, PaddedString, Struct
 
 entry_metadata = Struct(
     "entry_type" / Int32ul,  # entry type ID (101, 201, 202, ...)

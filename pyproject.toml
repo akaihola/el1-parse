@@ -37,5 +37,8 @@ ignore = [
 
 [tool.ruff.lint.per-file-ignores]
 "tests/*.py" = [
+    "ANN201",  # Missing return type annotation for public function
+    "INP001",  # File is part of an implicit namespace package. Add an `__init__.py`.
+    "PLR0915",  # Too many statements
     "S101",  # Use of assert detected
 ]
