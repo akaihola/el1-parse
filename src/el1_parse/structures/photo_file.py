@@ -22,7 +22,7 @@ photo_file = Struct(
     "photo_file_dat_unknown3" / Int32ul,
     Check(this.num_photos <= this.photo_file_dat_unknown3),
     "mystery_pointer" / Const(3152, Int32ul),  # some kind of a pointer?
-    Check(lambda ctx: this.mystery_pointer < ctx._._.entry_table[ctx._index].size),  # noqa: SLF001
+    Check(lambda ctx: this.mystery_pointer < ctx._._._.entry_table[ctx._index].size),  # noqa: SLF001
     "software" / Const("Canon Easy-LayoutPrint", PaddedString(0x64, "ascii")),
     "photo_file_dat_unknown5" / Const(3, Int32ul),
     "photo_file_dat_unknown6" / Const(0, Int32ul),

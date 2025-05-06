@@ -3,6 +3,7 @@
 from construct import (
     Array,
     Bytes,
+    Computed,
     Const,
     Construct,
     FocusedSeq,
@@ -25,7 +26,7 @@ from el1_parse.structures.photo_file import photo_file
 def hexdump_unparsed(width: int = 16) -> Construct:
     """Create a construct for a user-defined format (UDF)."""
     return HexDumpRepeatSuppress(
-        Bytes(lambda ctx: ctx._.entry_table[ctx._index].size),  # noqa: SLF001
+        Bytes(lambda ctx: ctx._._.entry_table[ctx._index].size),  # noqa: SLF001
         width=width,
     )
 
@@ -41,10 +42,17 @@ def make_parser(entry_struct: Construct) -> Struct:
         "entries"
         / Array(
             this.num_entries,
-            FocusedSeq(
-                "data",
-                Seek(lambda ctx: ctx._.entry_table[ctx._index].offset),  # noqa: SLF001
-                "data" / entry_struct,
+            Struct(
+                "name"
+                / Computed(
+                    lambda ctx: ctx._.entry_table[ctx._index].name.strip("\x00")  # noqa: SLF001
+                ),
+                "data"
+                / FocusedSeq(
+                    "data",
+                    Seek(lambda ctx: ctx._._.entry_table[ctx._index].offset),  # noqa: SLF001
+                    "data" / entry_struct,
+                ),
             ),
         ),
         "end" / Terminated,
@@ -53,7 +61,7 @@ def make_parser(entry_struct: Construct) -> Struct:
 
 el1 = make_parser(
     Switch(
-        lambda ctx: ctx._.entry_table[ctx._index].name,  # noqa: SLF001
+        lambda ctx: ctx._._["entry_table"][ctx._index].name,  # noqa: SLF001
         {
             "ElpData.dat": hexdump_unparsed(32),
             "CurrentBase.dat": hexdump_unparsed(32),
