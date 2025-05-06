@@ -1,0 +1,28 @@
+---
+pages:
+  - layout: "001"
+    frames:
+      - center-x: 105.0
+        center-y: 81.7
+      - center-x: 105.0
+        center-y: 215.2
+  - layout: "021"
+    frames:
+      - center-x: 68.241
+        center-y: 55.039
+        width: 106.5
+        height: 80.0
+      - center-x: 68.241
+        center-y: 148.5
+        width: 106.5
+        height: 80.0
+      - center-x: 68.241
+        center-y: 242.011
+        width: 106.5
+        height: 80.0
+  - layout: "006"
+    frames:
+      - center-x: 105.0
+        center-y: 148.5
+        width: 118.5
+        height: 89.0
