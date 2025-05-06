@@ -13,7 +13,7 @@
             let pyodide = await loadPyodide();
             await pyodide.loadPackage("micropip");
             const micropip = pyodide.pyimport("micropip");
-            await micropip.install('http:dist/el1_parse-0.1.0-py3-none-any.whl');
+            await micropip.install('https:dist/el1_parse-0.1.0-py3-none-any.whl');
             await pyodide.runPythonAsync(`
                 import traceback
                 from js import document, Uint8Array
