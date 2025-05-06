@@ -3,8 +3,12 @@
 import argparse
 import logging
 from pathlib import Path
+from typing import TYPE_CHECKING
 
 from el1_parse.structures.el1 import el1, el1_dat_extract
+
+if TYPE_CHECKING:
+    from construct import Container
 
 logger = logging.getLogger(__name__)
 
@@ -21,8 +25,8 @@ def main() -> None:
     if opts.extract:
         extract_raw_dat_files(opts.input_file)
     else:
-        _ = el1.parse(opts.input_file.read_bytes())
-        logger.info("Parsed %s successfully", opts.input_file)
+        parsed: Container = el1.parse(opts.input_file.read_bytes())
+        print(parsed)  # noqa: T201
 
 
 def extract_raw_dat_files(input_file: Path) -> None:
@@ -33,5 +37,5 @@ def extract_raw_dat_files(input_file: Path) -> None:
     for entry_index, entry_data in enumerate(data.entries):
         entry_name = data.entry_table[entry_index].name
         output_path = directory / entry_name
-        output_path.write_bytes(entry_data)
+        output_path.write_bytes(entry_data.data)
         logger.info("Extracted %s to %s", entry_name, output_path)

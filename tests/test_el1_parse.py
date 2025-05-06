@@ -105,6 +105,36 @@ def test_parse_el1_file(expected_file: str) -> None:
     check.equal([page.page_num_ for page in pages], expected_page_numbers)
     expected_frames_per_page = [len(page["frames"]) for page in expected_data["pages"]]
     check.equal([page.num_frames for page in pages], expected_frames_per_page)
+    expect_frame_lefts = [
+        [
+            int(1000 * (frame["center-x"] - frame.get("width", 118.5) / 2))
+            for frame in page["frames"]
+        ]
+        for page in expected_data["pages"]
+    ]
+    frame_lefts = [[frame.left for frame in page.frames] for page in pages]
+    check.equal(frame_lefts, expect_frame_lefts)
+    expect_frame_tops = [
+        [
+            int(1000 * (frame["center-y"] - frame.get("height", 88.9) / 2))
+            for frame in page["frames"]
+        ]
+        for page in expected_data["pages"]
+    ]
+    frame_tops = [[frame.top for frame in page.frames] for page in pages]
+    check.equal(frame_tops, expect_frame_tops)
+    expect_widths = [
+        [int(1000 * frame.get("width", 118.5)) for frame in page["frames"]]
+        for page in expected_data["pages"]
+    ]
+    frame_widths = [[frame.width for frame in page.frames] for page in pages]
+    check.equal(frame_widths, expect_widths)
+    expect_heights = [
+        [int(1000 * frame.get("height", 89.0)) for frame in page["frames"]]
+        for page in expected_data["pages"]
+    ]
+    frame_heights = [[frame.height for frame in page.frames] for page in pages]
+    check.equal(frame_heights, expect_heights)
 
     check.equal(len(parsed_data.entries[4]), sizes[4])  # Object.dat
 
@@ -113,7 +143,7 @@ def test_parse_el1_file(expected_file: str) -> None:
     expected_frames = [
         frame for page in expected_data["pages"] for frame in page["frames"]
     ]
-    check.equal(len(photo_data.frames), len(expected_frames))
+    check.equal(len(photo_data.photos), len(expected_frames))
 
     check.equal(len(parsed_data.entries[6]), sizes[6])  # Memo.dat
     check.equal(len(parsed_data.entries[7]), sizes[7])  # Text.dat

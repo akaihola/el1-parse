@@ -3,6 +3,7 @@
 from construct import (
     Array,
     Bytes,
+    Computed,
     Const,
     Construct,
     FocusedSeq,
@@ -16,11 +17,18 @@ from construct import (
 )
 
 from el1_parse.structures.entry_metadata import entry_metadata
+from el1_parse.structures.hexdump_norepeat import HexDumpRepeatSuppress
 from el1_parse.structures.page import page
 from el1_parse.structures.photo import photo
 from el1_parse.structures.photo_file import photo_file
 
-unparsed_dat_file = Bytes(lambda ctx: ctx._.entry_table[ctx._index].size)
+
+def hexdump_unparsed(width: int = 16) -> Construct:
+    """Create a construct for a user-defined format (UDF)."""
+    return HexDumpRepeatSuppress(
+        Bytes(lambda ctx: ctx._._.entry_table[ctx._index].size),  # noqa: SLF001
+        width=width,
+    )
 
 
 def make_parser(entry_struct: Construct) -> Struct:
@@ -34,10 +42,17 @@ def make_parser(entry_struct: Construct) -> Struct:
         "entries"
         / Array(
             this.num_entries,
-            FocusedSeq(
-                "data",
-                Seek(lambda ctx: ctx._.entry_table[ctx._index].offset),
-                "data" / entry_struct,
+            Struct(
+                "name"
+                / Computed(
+                    lambda ctx: ctx._.entry_table[ctx._index].name.strip("\x00")  # noqa: SLF001
+                ),
+                "data"
+                / FocusedSeq(
+                    "data",
+                    Seek(lambda ctx: ctx._._.entry_table[ctx._index].offset),  # noqa: SLF001
+                    "data" / entry_struct,
+                ),
             ),
         ),
         "end" / Terminated,
@@ -46,9 +61,22 @@ def make_parser(entry_struct: Construct) -> Struct:
 
 el1 = make_parser(
     Switch(
-        lambda ctx: ctx._.entry_table[ctx._index].name,
-        {"Page.dat": page, "Photo.dat": photo, "PhotoFile.dat": photo_file},
-        default=unparsed_dat_file,
+        lambda ctx: ctx._._["entry_table"][ctx._index].name,  # noqa: SLF001
+        {
+            "ElpData.dat": hexdump_unparsed(32),
+            "CurrentBase.dat": hexdump_unparsed(32),
+            "Deflay.dat": hexdump_unparsed(84),
+            "Page.dat": page,
+            "Object.dat": hexdump_unparsed(88),
+            "Photo.dat": photo,
+            "Memo.dat": hexdump_unparsed(293),
+            "Text.dat": hexdump_unparsed(28),
+            "Calender.dat": hexdump_unparsed(37),
+            "CalenderBase.dat": hexdump_unparsed(37),
+            "PhotoList.dat": hexdump_unparsed(36),
+            "PhotoFile.dat": photo_file,
+            "ExpImg.dat": hexdump_unparsed(32),
+        },
     )
 )
-el1_dat_extract = make_parser(unparsed_dat_file)
+el1_dat_extract = make_parser(hexdump_unparsed(32))
