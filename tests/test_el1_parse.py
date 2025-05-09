@@ -92,12 +92,12 @@ def test_parse_el1_file(expected_file: str) -> None:
     check.equal(offset_differences, sizes[:-1])
 
     # Lengths of raw unparsed data entries should match sizes from the entry table
-    check.equal(len(parsed_data.entries[0]), sizes[0])  # ElpData.dat
-    check.equal(len(parsed_data.entries[1]), sizes[1])  # CurrentBase.dat
-    check.equal(len(parsed_data.entries[2]), sizes[2])  # Deflay.dat
+    check.equal(len(parsed_data.entries[0].data.data), sizes[0])  # ElpData.dat
+    check.equal(len(parsed_data.entries[1].data.data), sizes[1])  # CurrentBase.dat
+    check.equal(len(parsed_data.entries[2].data.data), sizes[2])  # Deflay.dat
 
     # Check data for Page.dat
-    pages_data = parsed_data.entries[3]
+    pages_data = parsed_data.entries[3].data
     pages = pages_data.pages
     check.equal(pages_data.num_entries, len(pages))
     expected_page_numbers = list(range(1, pages_data.num_entries + 1))
@@ -136,31 +136,31 @@ def test_parse_el1_file(expected_file: str) -> None:
     frame_heights = [[frame.height for frame in page.frames] for page in pages]
     check.equal(frame_heights, expect_heights)
 
-    check.equal(len(parsed_data.entries[4]), sizes[4])  # Object.dat
+    check.equal(len(parsed_data.entries[4].data.data), sizes[4])  # Object.dat
 
     # Check data for Photo.dat
-    photo_data = parsed_data.entries[5]
+    photo_data = parsed_data.entries[5].data
     expected_frames = [
         frame for page in expected_data["pages"] for frame in page["frames"]
     ]
     check.equal(len(photo_data.photos), len(expected_frames))
 
-    check.equal(len(parsed_data.entries[6]), sizes[6])  # Memo.dat
-    check.equal(len(parsed_data.entries[7]), sizes[7])  # Text.dat
-    check.equal(len(parsed_data.entries[8]), sizes[8])  # Calender.dat
-    check.equal(len(parsed_data.entries[9]), sizes[9])  # CalenderBase.dat
-    check.equal(len(parsed_data.entries[10]), sizes[10])  # PhotoList.dat
+    check.equal(len(parsed_data.entries[6].data.data), sizes[6])  # Memo.dat
+    check.equal(len(parsed_data.entries[7].data.data), sizes[7])  # Text.dat
+    check.equal(len(parsed_data.entries[8].data.data), sizes[8])  # Calender.dat
+    check.equal(len(parsed_data.entries[9].data.data), sizes[9])  # CalenderBase.dat
+    check.equal(len(parsed_data.entries[10].data.data), sizes[10])  # PhotoList.dat
 
     # Check data for PhotoFile.dat
-    photo_file_data = parsed_data.entries[11]
+    photo_file_data = parsed_data.entries[11].data
     expected_photo_filenames = {
         frame["image"] for frame in expected_frames if "image" in frame
     }
     expected_num_photos = len(expected_photo_filenames)
-    check.equal(len(photo_file_data.photos), expected_num_photos)
+    check.equal(len(photo_file_data.photo_files), expected_num_photos)
     check.equal(photo_file_data.num_photos, expected_num_photos)
-    for photo_index, photo in enumerate(photo_file_data.photos, start=1):
-        check.equal(photo.photo_id, photo_index)
+    for photo_index, photo in enumerate(photo_file_data.photo_files, start=1):
+        check.equal(photo.photo_file_id, photo_index)
         check_is_cache_path(photo.cache_dir_path)
         check_is_path(photo.origin_dir_path)
         check_is_cache_path(photo.cache_dir_path2)
@@ -171,14 +171,14 @@ def test_parse_el1_file(expected_file: str) -> None:
         )
         path = el1_file.with_suffix(".el1.Data") / photo.cache_filename
         check.equal(photo.filesize, path.stat().st_size)
-    cache_filenames = {photo.cache_filename for photo in photo_file_data.photos}
-    origin_filenames = {photo.origin_filename for photo in photo_file_data.photos}
-    cache_filenames2 = {photo.cache_filename2 for photo in photo_file_data.photos}
+    cache_filenames = {photo.cache_filename for photo in photo_file_data.photo_files}
+    origin_filenames = {photo.origin_filename for photo in photo_file_data.photo_files}
+    cache_filenames2 = {photo.cache_filename2 for photo in photo_file_data.photo_files}
     check.equal(cache_filenames, expected_photo_filenames)
     check.equal(origin_filenames, expected_photo_filenames)
     check.equal(cache_filenames2, expected_photo_filenames)
 
-    check.equal(len(parsed_data.entries[12]), sizes[12])  # ExpImg.dat
+    check.equal(len(parsed_data.entries[12].data.data), sizes[12])  # ExpImg.dat
 
 
 @check.check_func
